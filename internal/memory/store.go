@@ -820,7 +820,8 @@ func (s *Store) GetQueuedTasksForProject(projectPath string, limit int) ([]*Exec
 	rows, err := s.db.Query(`
 		SELECT id, task_id, project_path, status, output, error, duration_ms, pr_url, commit_sha, created_at, completed_at,
 			COALESCE(task_title, ''), COALESCE(task_description, ''), COALESCE(task_branch, ''),
-			COALESCE(task_base_branch, ''), COALESCE(task_create_pr, 0), COALESCE(task_verbose, 0)
+			COALESCE(task_base_branch, ''), COALESCE(task_create_pr, 0), COALESCE(task_verbose, 0),
+			COALESCE(task_source_adapter, ''), COALESCE(task_source_issue_id, '')
 		FROM executions
 		WHERE (status = 'queued' OR status = 'pending') AND project_path = ?
 		ORDER BY created_at ASC
@@ -836,7 +837,8 @@ func (s *Store) GetQueuedTasksForProject(projectPath string, limit int) ([]*Exec
 		var exec Execution
 		var completedAt sql.NullTime
 		if err := rows.Scan(&exec.ID, &exec.TaskID, &exec.ProjectPath, &exec.Status, &exec.Output, &exec.Error, &exec.DurationMs, &exec.PRUrl, &exec.CommitSHA, &exec.CreatedAt, &completedAt,
-			&exec.TaskTitle, &exec.TaskDescription, &exec.TaskBranch, &exec.TaskBaseBranch, &exec.TaskCreatePR, &exec.TaskVerbose); err != nil {
+			&exec.TaskTitle, &exec.TaskDescription, &exec.TaskBranch, &exec.TaskBaseBranch, &exec.TaskCreatePR, &exec.TaskVerbose,
+			&exec.TaskSourceAdapter, &exec.TaskSourceIssueID); err != nil {
 			return nil, err
 		}
 		if completedAt.Valid {
