@@ -2606,7 +2606,12 @@ The previous execution completed but made no code changes. This task requires ac
 			var prURL string
 			if r.prCreator != nil && task.SourceAdapter != "" && task.SourceAdapter != "github" {
 				// Non-GitHub adapter: use PRCreator (e.g., GitLab MR API)
-				prBody := fmt.Sprintf("## Summary\n\nAutomated MR created by Pilot for task %s.\n\n## Changes\n\n%s", task.ID, task.Description)
+				// Include "Closes #N" keyword so GitLab auto-closes the source issue on merge
+				closeKeyword := ""
+				if task.SourceIssueID != "" {
+					closeKeyword = fmt.Sprintf("\n\nCloses #%s", task.SourceIssueID)
+				}
+				prBody := fmt.Sprintf("## Summary\n\nAutomated MR created by Pilot for task %s.%s\n\n## Changes\n\n%s", task.ID, closeKeyword, task.Description)
 				var createErr error
 				prURL, createErr = r.prCreator.CreatePR(ctx, task.Branch, baseBranch, prTitle, prBody)
 				if createErr != nil {
