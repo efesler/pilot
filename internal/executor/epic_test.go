@@ -1385,11 +1385,11 @@ func TestCreatedIssue_IdentifierField(t *testing.T) {
 			name: "github issue",
 			issue: CreatedIssue{
 				Number:     123,
-				Identifier: "123",
+				Identifier: "GH-123",
 				URL:        "https://github.com/owner/repo/issues/123",
 			},
 			wantNumber: 123,
-			wantIdent:  "123",
+			wantIdent:  "GH-123",
 		},
 		{
 			name: "linear issue",

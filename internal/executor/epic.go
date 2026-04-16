@@ -555,7 +555,7 @@ func (r *Runner) createSubIssuesViaGitHub(ctx context.Context, plan *EpicPlan, e
 
 		created = append(created, CreatedIssue{
 			Number:     issueNumber,
-			Identifier: strconv.Itoa(issueNumber), // For consistency, populate Identifier too
+			Identifier: fmt.Sprintf("GH-%d", issueNumber),
 			URL:        issueURL,
 			Subtask:    subtask,
 		})
@@ -695,17 +695,12 @@ func (r *Runner) ExecuteSubIssues(ctx context.Context, parent *Task, issues []Cr
 		default:
 		}
 
-		// GH-1471: Determine issue reference and task ID format
-		// For GitHub issues (Number > 0): use "GH-N" format for backwards compatibility
-		// For non-GitHub adapters (Number == 0): use Identifier directly (e.g., "APP-123")
+		// Determine issue reference and task ID from Identifier.
+		// Both createSubIssuesViaGitHub and createSubIssuesViaAdapter populate
+		// Identifier with the adapter-prefixed ID (e.g., "GH-42", "GL-17", "APP-123").
 		var issueRef string
 		var taskID string
-		if issue.Number > 0 {
-			// GitHub issue: use "GH-N" format
-			taskID = fmt.Sprintf("GH-%d", issue.Number)
-			issueRef = strconv.Itoa(issue.Number)
-		} else if issue.Identifier != "" {
-			// Non-GitHub adapter: use Identifier directly
+		if issue.Identifier != "" {
 			taskID = issue.Identifier
 			issueRef = issue.Identifier
 		} else {

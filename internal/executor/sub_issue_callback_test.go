@@ -43,19 +43,22 @@ func TestExecuteSubIssues_CallbackFiresForEachPR(t *testing.T) {
 	// Table of sub-issues with expected PR results
 	subIssues := []CreatedIssue{
 		{
-			Number:  10,
-			URL:     "https://github.com/owner/repo/issues/10",
-			Subtask: PlannedSubtask{Title: "Create schema", Description: "Migration", Order: 1},
+			Number:     10,
+			Identifier: "GH-10",
+			URL:        "https://github.com/owner/repo/issues/10",
+			Subtask:    PlannedSubtask{Title: "Create schema", Description: "Migration", Order: 1},
 		},
 		{
-			Number:  11,
-			URL:     "https://github.com/owner/repo/issues/11",
-			Subtask: PlannedSubtask{Title: "Add endpoints", Description: "REST API", Order: 2},
+			Number:     11,
+			Identifier: "GH-11",
+			URL:        "https://github.com/owner/repo/issues/11",
+			Subtask:    PlannedSubtask{Title: "Add endpoints", Description: "REST API", Order: 2},
 		},
 		{
-			Number:  12,
-			URL:     "https://github.com/owner/repo/issues/12",
-			Subtask: PlannedSubtask{Title: "Write tests", Description: "Unit tests", Order: 3},
+			Number:     12,
+			Identifier: "GH-12",
+			URL:        "https://github.com/owner/repo/issues/12",
+			Subtask:    PlannedSubtask{Title: "Write tests", Description: "Unit tests", Order: 3},
 		},
 	}
 

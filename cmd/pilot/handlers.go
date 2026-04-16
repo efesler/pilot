@@ -975,6 +975,10 @@ func handleGitLabIssueWithResult(ctx context.Context, cfg *config.Config, client
 	// the GitLab API instead of the gh CLI.
 	runner.SetPRCreator(client)
 
+	// Wire GitLab client as SubIssueCreator so epic decomposition creates
+	// sub-issues in GitLab instead of falling back to the gh CLI.
+	runner.SetSubIssueCreator(client)
+
 	deps := HandlerDeps{
 		Cfg:          cfg,
 		Dispatcher:   dispatcher,

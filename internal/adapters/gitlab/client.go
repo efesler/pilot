@@ -9,7 +9,12 @@ import (
 	"net/http"
 	"net/url"
 	"time"
+
+	"github.com/qf-studio/pilot/internal/executor"
 )
+
+// Compile-time check: *Client implements executor.SubIssueCreator
+var _ executor.SubIssueCreator = (*Client)(nil)
 
 const (
 	gitlabAPIURL = "https://gitlab.com"
@@ -313,6 +318,28 @@ func (c *Client) UpdateIssueState(ctx context.Context, iid int, state string) er
 	}
 	reqBody := map[string]string{"state_event": stateEvent}
 	return c.doRequest(ctx, http.MethodPut, path, reqBody, nil)
+}
+
+// CreateIssue implements executor.SubIssueCreator for epic decomposition.
+// It creates a new GitLab issue as a child of the given parent.
+// parentID should be the parent issue IID as a string (e.g., "42").
+func (c *Client) CreateIssue(ctx context.Context, parentID, title, body string, labels []string) (string, string, error) {
+	path := fmt.Sprintf("/api/v4/projects/%s/issues", c.projectID)
+	reqBody := map[string]interface{}{
+		"title":       title,
+		"description": body,
+	}
+	if len(labels) > 0 {
+		reqBody["labels"] = labels
+	}
+
+	var issue Issue
+	if err := c.doRequest(ctx, http.MethodPost, path, reqBody, &issue); err != nil {
+		return "", "", fmt.Errorf("failed to create GitLab issue: %w", err)
+	}
+
+	identifier := fmt.Sprintf("GL-%d", issue.IID)
+	return identifier, issue.WebURL, nil
 }
 
 // AddMergeRequestNote adds a comment to a merge request

@@ -23,8 +23,9 @@ func makeSubIssues(n, startNum int) []CreatedIssue {
 	for i := 0; i < n; i++ {
 		num := startNum + i
 		issues[i] = CreatedIssue{
-			Number: num,
-			URL:    fmt.Sprintf("https://github.com/owner/repo/issues/%d", num),
+			Number:     num,
+			Identifier: fmt.Sprintf("GH-%d", num),
+			URL:        fmt.Sprintf("https://github.com/owner/repo/issues/%d", num),
 			Subtask: PlannedSubtask{
 				Title:       fmt.Sprintf("Sub-issue %d", i+1),
 				Description: fmt.Sprintf("Description for sub-issue %d", i+1),
@@ -157,7 +158,7 @@ func TestSequentialEpicFlow(t *testing.T) {
 				}, nil
 			},
 			wantErr:         true,
-			wantErrContains: "sub-issue 101 failed",
+			wantErrContains: "sub-issue GH-101 failed",
 			// Current behavior: abort on first failure.
 			// First sub-issue succeeds (exec+callback), second fails (exec only), third never runs.
 			wantExecCount:       2,
@@ -183,7 +184,7 @@ func TestSequentialEpicFlow(t *testing.T) {
 				}, nil
 			},
 			wantErr:             true,
-			wantErrContains:     "sub-issue 100 failed",
+			wantErrContains:     "sub-issue GH-100 failed",
 			wantExecCount:       1,
 			wantPRCallbackCount: 0,
 			wantPRNumbers:       nil,
@@ -202,7 +203,7 @@ func TestSequentialEpicFlow(t *testing.T) {
 				}, nil
 			},
 			wantErr:             true,
-			wantErrContains:     "sub-issue 100 failed",
+			wantErrContains:     "sub-issue GH-100 failed",
 			wantExecCount:       1, // Stops at first failure
 			wantPRCallbackCount: 0,
 			wantPRNumbers:       nil,
@@ -597,9 +598,9 @@ func TestSequentialEpicFlow_PartialSuccessThenFailure(t *testing.T) {
 		t.Errorf("PR callback count = %d, want 3", len(sr.PRCalls))
 	}
 
-	// Error should mention the failing issue number
-	if !strings.Contains(err.Error(), "sub-issue 503 failed") {
-		t.Errorf("error = %q, want mention of sub-issue 503", err.Error())
+	// Error should mention the failing issue identifier
+	if !strings.Contains(err.Error(), "sub-issue GH-503 failed") {
+		t.Errorf("error = %q, want mention of sub-issue GH-503", err.Error())
 	}
 }
 
